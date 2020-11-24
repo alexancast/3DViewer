@@ -47,16 +47,16 @@ public class Atlantis extends JFrame {
         yPos.addChangeListener(new ValueChange());
         zPos.addChangeListener(new ValueChange());
 
-        xPos.setMinimum(-10);
-        xPos.setMaximum(10);
+        xPos.setMinimum(-1000);
+        xPos.setMaximum(1000);
         xPos.setValue(0);
 
-        yPos.setMinimum(-10);
-        yPos.setMaximum(10);
+        yPos.setMinimum(-1000);
+        yPos.setMaximum(1000);
         yPos.setValue(0);
 
-        zPos.setMinimum(-10);
-        zPos.setMaximum(10);
+        zPos.setMinimum(-100);
+        zPos.setMaximum(100);
         zPos.setValue(0);
 
         inspector.add(xPos);
