@@ -3,16 +3,21 @@ import javax.swing.*;
 import java.awt.event.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Atlantis extends JFrame {
 
     private JPanel inspector;
     private Viewport viewport;
     private Camera viewportCamera = new Camera();
+    private FileImporter importer = new FileImporter();
 
     private JSlider xPos = new JSlider();
     private JSlider yPos = new JSlider();
     private JSlider zPos = new JSlider();
+
+    private JMenuItem objItem;
+    private JMenuItem sceneMenu;
 
     public Atlantis() {
 
@@ -28,13 +33,18 @@ public class Atlantis extends JFrame {
         JMenu newMenu = new JMenu("New");
         fileMenu.add(newMenu);
 
-        JMenuItem sceneMenu = new JMenuItem("Scene");
+        sceneMenu = new JMenuItem("Scene");
+        sceneMenu.addActionListener(new NewSceneListener());
         newMenu.add(sceneMenu);
 
         fileMenu.addSeparator();
 
-        JMenuItem importFile = new JMenuItem("Import");
-        fileMenu.add(importFile);
+        JMenu importMenu = new JMenu("Import");
+        fileMenu.add(importMenu);
+
+        objItem = new JMenuItem(".obj");
+        objItem.addActionListener(new OpenFileListener());
+        importMenu.add(objItem);
 
         viewport = new Viewport(viewportCamera);
         add(viewport, BorderLayout.CENTER);
@@ -74,6 +84,37 @@ public class Atlantis extends JFrame {
         public void stateChanged(ChangeEvent e) {
             viewportCamera.transform.position = new Vector3(xPos.getValue(), yPos.getValue(), zPos.getValue());
             viewport.update();
+        }
+
+    }
+
+    protected class NewSceneListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            remove(viewport);
+            viewport = new Viewport(viewportCamera);
+            add(viewport, BorderLayout.CENTER);
+            viewport.update();
+        }
+    }
+
+    protected class OpenFileListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser fileChooser = new JFileChooser();
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("Wavefront Object", "obj");
+            fileChooser.setFileFilter(filter);
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+            fileChooser.setCurrentDirectory(fileChooser.getCurrentDirectory());
+            int returnVal = fileChooser.showOpenDialog(fileChooser);
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                Mesh mesh = importer.parseObj(fileChooser.getSelectedFile().getAbsolutePath());
+                viewport.meshs.add(mesh);
+                viewport.update();
+            }
         }
 
     }

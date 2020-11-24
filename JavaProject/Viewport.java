@@ -1,12 +1,14 @@
 import java.awt.*;
+import java.util.ArrayList;
 import javax.swing.*;
-import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 public class Viewport extends JPanel {
 
     private Camera camera;
-    private int gizmoSize = 4;
+    private int gizmoSize = 2;
     private int scale = 50;
+
+    public ArrayList<Mesh> meshs = new ArrayList<>();
 
     public Viewport(Camera camera) {
         this.camera = camera;
@@ -16,25 +18,6 @@ public class Viewport extends JPanel {
         revalidate();
         repaint();
     }
-
-    private Vector3[] cube = { new Vector3(-50, 0, -50), new Vector3(50, 0, -50), new Vector3(-50, 100, -50), new Vector3(50, 100, -50),
-
-            new Vector3(-50, 0, 50), new Vector3(50, 0, 50), new Vector3(-50, 100, 50), new Vector3(50, 100, 50) };
-
-    private Vector2[] cubeEdges = {
-        new Vector2(0,1),
-        new Vector2(2,3),
-        new Vector2(0,2),
-        new Vector2(3,1),
-        new Vector2(0,4),
-        new Vector2(2,6),
-        new Vector2(1,5),
-        new Vector2(3,7),
-        new Vector2(4,5),
-        new Vector2(4,6),
-        new Vector2(6,7),
-        new Vector2(5,7),
-    };
 
     @Override
     public void paintComponent(Graphics g) {
@@ -48,22 +31,17 @@ public class Viewport extends JPanel {
 
         graphics.setColor(Color.WHITE);
 
-        //Points
-        // for (int i = 0; i < cube.length; i++) {
-
-        //     Vector2 point = project3DPoint(cube[i]);
-        //     int x = (int) point.x;
-        //     int y = (int) point.y;
-
-        //     graphics.drawOval(x, y, 1, 1);
-        // }
-
-        for (int i = 0; i < cubeEdges.length; i++) {
-
-            Vector2 startPoint = project3DPoint(cube[(int)cubeEdges[i].x]);
-            Vector2 endPoint = project3DPoint(cube[(int)cubeEdges[i].y]);
-
-            graphics.drawLine((int)startPoint.x, (int)startPoint.y, (int)endPoint.x, (int)endPoint.y);
+        for (Mesh mesh : meshs) {
+            if (mesh != null) {
+                for (int i = 0; i < mesh.vertices.length; i++) {
+                    Vector3 point3d = new Vector3(mesh.vertices[i].x * scale, mesh.vertices[i].y * scale,
+                            mesh.vertices[i].z * scale);
+                    Vector2 point = project3DPoint(point3d);
+                    int x = (int) point.x;
+                    int y = (int) point.y;
+                    graphics.fillOval(x - gizmoSize / 2, y - gizmoSize / 2, gizmoSize, gizmoSize);
+                }
+            }
         }
 
     }
