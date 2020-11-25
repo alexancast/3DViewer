@@ -65,8 +65,8 @@ public class Atlantis extends JFrame {
         yPos.setMaximum(1000);
         yPos.setValue(0);
 
-        zPos.setMinimum(-100);
-        zPos.setMaximum(100);
+        zPos.setMinimum(-1);
+        zPos.setMaximum(1);
         zPos.setValue(0);
 
         inspector.add(xPos);

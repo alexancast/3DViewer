@@ -5,7 +5,7 @@ import javax.swing.*;
 public class Viewport extends JPanel {
 
     private Camera camera;
-    private int gizmoSize = 10;
+    private int gizmoSize = 2;
     private int scale = 50;
 
     public ArrayList<Mesh> meshs = new ArrayList<>();
@@ -34,11 +34,16 @@ public class Viewport extends JPanel {
         for (Mesh mesh : meshs) {
             if (mesh != null) {
                 for (int i = 0; i < mesh.vertices.length; i++) {
-                    Vector3 point3d = new Vector3(mesh.vertices[i].x * scale, mesh.vertices[i].y * scale,
-                            mesh.vertices[i].z * scale);
+
+                    double xPos = mesh.vertices[i].x * scale * camera.transform.position.z + getWidth() / 2 - camera.transform.position.x;
+                    double yPos = mesh.vertices[i].y * scale * camera.transform.position.z + getHeight() / 2 - camera.transform.position.y;
+                    double zPos = mesh.vertices[i].z * scale;
+
+                    Vector3 point3d = new Vector3(xPos, yPos, zPos);
                     Vector2 point = project3DPoint(point3d);
                     int x = (int) point.x;
                     int y = (int) point.y;
+                    
                     graphics.fillOval(x - gizmoSize / 2, y - gizmoSize / 2, gizmoSize, gizmoSize);
                 }
             }
@@ -56,14 +61,13 @@ public class Viewport extends JPanel {
 
         // return new Vector2(x, y);
 
-        double[][] projectionMatrix = new double[2][];
-        double[][] rotationMatrix = new double[2][];
-        double[] renderMatrix = new double[2];
+        Vector3 projection = new Vector3();
+
+        double[][] projectionMatrix = new double[2][3];
+        double[][] rotationMatrix = new double[3][2];
+        double[][] renderMatrix = new double[2][1];
 
         //ProjectionMatrix
-        projectionMatrix[0] = new double[3];
-        projectionMatrix[1] = new double[3];
-
         projectionMatrix[0][0]= 1;
         projectionMatrix[0][1]= 0;
         projectionMatrix[0][2]= 0;
@@ -72,28 +76,9 @@ public class Viewport extends JPanel {
         projectionMatrix[1][1]= 1;
         projectionMatrix[1][2]= 0;
 
-        //RotationMatrix
-        rotationMatrix[0] = new double[3];
-        rotationMatrix[1] = new double[3];
-
-        rotationMatrix[0][0] = Math.cos(camera.transform.rotation.x);
-        rotationMatrix[0][1] = -Math.sin(camera.transform.rotation.x);
-        rotationMatrix[0][2] = 0;
-        
-        
-        rotationMatrix[1][0] = Math.sin(camera.transform.rotation.x);
-        rotationMatrix[1][1] = -Math.cos(camera.transform.rotation.x);
-        rotationMatrix[1][2] = 0;
-
         //Positional
-        renderMatrix[0] = projectionMatrix[0][0] * point.x + projectionMatrix[0][1] * point.y + projectionMatrix[0][2] * point.z;
-        renderMatrix[1] = projectionMatrix[1][0] * point.x + projectionMatrix[1][1] * point.y + projectionMatrix[1][2] * point.z;
-
-        //Rotational
-        renderMatrix[0] = renderMatrix[0] * rotationMatrix[0][0] + renderMatrix[1] * rotationMatrix[0][1];
-        renderMatrix[1] = renderMatrix[0] * rotationMatrix[1][0] + renderMatrix[1] * rotationMatrix[1][1];
-
-        return new Vector2(renderMatrix[0], renderMatrix[1]);
+        renderMatrix = MathF.matrixMultiplication(projectionMatrix, point);
+        return new Vector2(renderMatrix[0][0], renderMatrix[1][0]);
     }
 
 }

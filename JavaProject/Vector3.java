@@ -5,6 +5,10 @@ public class Vector3 {
     public double z = 0;
     public double w = 1;
 
+    public Vector3(){
+
+    }
+    
     public Vector3(double x, double y, double z) {
         this.x = x;
         this.y = y;
